@@ -14,7 +14,11 @@ def read_message():
     - If DATA_PATH exists, read and return the text inside
     - If it doesn't exist, return an empty string
     """
-    pass
+    if(os.path.exists(DATA_PATH)):
+        with open(DATA_PATH, 'r') as file:
+            return file.read()
+    else:
+        return ""
 
 
 def write_message(msg: str):
@@ -23,7 +27,8 @@ def write_message(msg: str):
     - Open DATA_PATH
     - Write msg to the file
     """
-    pass
+    with open(DATA_PATH, 'w') as file:
+        file.write(msg)
 
 
 @app.route("/api/message", methods=["GET"])
@@ -33,7 +38,8 @@ def get_message():
     - Call read_message()
     - Return { "message": <stored message> } as JSON
     """
-    pass
+    message = read_message()
+    return jsonify({"message": message})
 
 
 @app.route("/api/message", methods=["POST"])
@@ -45,7 +51,18 @@ def update_message():
     - Call write_message() to save it
     - Return { "status": "ok" }
     """
-    pass
+    data = request.get_json()
+    message = data.get("message", "")
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    saved_message = f"{message} (updated at {now})"
+
+    write_message(saved_message)
+    return jsonify({"status": "ok"})
+
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "healthy"})
 
 
 # v1 has no /api/health endpoint

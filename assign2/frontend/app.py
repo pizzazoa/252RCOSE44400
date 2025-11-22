@@ -15,7 +15,18 @@ def index():
     - Extract the message from the JSON response
     - Render index.html and pass the message as "current_message"
     """
-    pass
+    response = requests.get(f"{BACKEND_URL}/api/message")
+    data = response.json()
+    current_message = data.get("message", "")
+
+    seperator = " (updated at "
+    timestamp = None
+    if seperator in current_message:
+        parts = current_message.rsplit(seperator, 1)
+        current_message = parts[0]
+        timestamp = parts[1].rstrip(")")
+
+    return render_template("index.html", current_message=current_message, timestamp=timestamp)
 
 
 @app.route("/update", methods=["POST"])
@@ -27,7 +38,9 @@ def update():
       with JSON body { "message": new_message }
     - Redirect back to "/"
     """
-    pass
+    new_message = request.form.get("new_message", "")
+    requests.post(f"{BACKEND_URL}/api/message", json={"message": new_message})
+    return redirect("/")
 
 
 # v2 TODO:
